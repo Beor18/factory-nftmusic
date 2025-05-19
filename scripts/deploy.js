@@ -5,23 +5,16 @@ const hre = require("hardhat");
 const { deployFactory, verifyContract } = require("./utils/deploy-helpers");
 
 async function main() {
-  // Tarifa de creación: 0.01 ETH
-  const creationFee = "0.01";
-
   // Desplegar factory
-  const { factory, factoryAddress } = await deployFactory(creationFee);
+  const { factoryAddress } = await deployFactory();
 
   // Registrar información para verificación
   console.log("Para verificar el contrato:");
-  console.log(
-    `npx hardhat verify --network baseSepolia ${factoryAddress} ${hre.ethers.parseEther(
-      creationFee
-    )}`
-  );
+  console.log(`npx hardhat verify --network baseSepolia ${factoryAddress}`);
 
   // Verificar automáticamente en redes compatibles
   if (network.name !== "hardhat" && network.name !== "localhost") {
-    await verifyContract(factoryAddress, [hre.ethers.parseEther(creationFee)]);
+    await verifyContract(factoryAddress, []);
   }
 }
 
