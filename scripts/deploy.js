@@ -2,7 +2,7 @@
  * Script principal de despliegue
  */
 const hre = require("hardhat");
-const { deployFactory, verifyContract } = require("./utils/deploy-helpers");
+const { deployFactory } = require("./utils/deploy-helpers");
 
 async function main() {
   // Desplegar factory
@@ -13,9 +13,9 @@ async function main() {
   console.log(`npx hardhat verify --network baseSepolia ${factoryAddress}`);
 
   // Verificar automáticamente en redes compatibles
-  if (network.name !== "hardhat" && network.name !== "localhost") {
-    await verifyContract(factoryAddress, []);
-  }
+  // if (network.name !== "hardhat" && network.name !== "localhost") {
+  //   await verifyContract(factoryAddress, []);
+  // }
 }
 
 main()
