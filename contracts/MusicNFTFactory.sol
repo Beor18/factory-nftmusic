@@ -10,7 +10,6 @@ import "./interfaces/IMusicNFTFactory.sol";
  * @title MusicNFTFactory
  * @dev Factory para que artistas musicales creen sus propias colecciones NFT
  */
-// solhint-disable-next-line abstract-contract
 contract MusicNFTFactory is IMusicNFTFactory, Ownable, ReentrancyGuard {
     // Almacena todas las colecciones creadas
     MusicCollection[] public collections;
@@ -27,6 +26,7 @@ contract MusicNFTFactory is IMusicNFTFactory, Ownable, ReentrancyGuard {
         string memory _name,
         string memory _symbol,
         string memory _baseURI,
+        string memory _collectionMetadata,
         uint256 _mintStartDate,
         uint256 _mintEndDate,
         uint256 _price,
@@ -39,6 +39,7 @@ contract MusicNFTFactory is IMusicNFTFactory, Ownable, ReentrancyGuard {
             _name,
             _symbol,
             _baseURI,
+            _collectionMetadata,
             _mintStartDate,
             _mintEndDate,
             _price,

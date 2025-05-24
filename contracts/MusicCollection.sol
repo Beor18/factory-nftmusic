@@ -29,6 +29,12 @@ contract MusicCollection is
     string public symbol;
     string public baseURI;
 
+    // Metadatos adicionales de la colección
+    string public collectionMetadata;
+
+    // Metadatos específicos por track/token
+    mapping(uint256 => string) private _tokenURIs;
+
     // Configuración de ventas
     uint256 public mintStartDate;
     uint256 public mintEndDate;
@@ -45,6 +51,7 @@ contract MusicCollection is
         string memory _name,
         string memory _symbol,
         string memory _baseURI,
+        string memory _collectionMetadata,
         uint256 _mintStartDate,
         uint256 _mintEndDate,
         uint256 _price,
@@ -56,6 +63,7 @@ contract MusicCollection is
         name = _name;
         symbol = _symbol;
         baseURI = _baseURI;
+        collectionMetadata = _collectionMetadata;
         mintStartDate = _mintStartDate;
         mintEndDate = _mintEndDate;
         price = _price;
@@ -68,10 +76,7 @@ contract MusicCollection is
     /**
      * @dev Configura el suministro máximo para un tokenId específico
      */
-    function setMaxSupply(
-        uint256 tokenId,
-        uint256 supply
-    ) external override onlyOwner {
+    function setMaxSupply(uint256 tokenId, uint256 supply) external onlyOwner {
         maxSupply[tokenId] = supply;
         emit MaxSupplyUpdated(tokenId, supply);
     }
@@ -82,7 +87,7 @@ contract MusicCollection is
     function addPaymentToken(
         address _token,
         uint256 _price
-    ) external override onlyOwner {
+    ) external onlyOwner {
         acceptedTokens[_token] = _price;
         emit PaymentTokenAdded(_token, _price);
     }
@@ -93,7 +98,7 @@ contract MusicCollection is
     function setMintDates(
         uint256 _startDate,
         uint256 _endDate
-    ) external override onlyOwner {
+    ) external onlyOwner {
         if (_startDate >= _endDate) revert InvalidDates();
         mintStartDate = _startDate;
         mintEndDate = _endDate;
@@ -106,9 +111,30 @@ contract MusicCollection is
     function setRoyaltyInfo(
         address receiver,
         uint96 feeNumerator
-    ) external override onlyOwner {
+    ) external onlyOwner {
         _setDefaultRoyalty(receiver, feeNumerator);
         emit RoyaltyInfoUpdated(receiver, feeNumerator);
+    }
+
+    /**
+     * @dev Establece metadatos específicos para un token/track
+     */
+    function setTokenURI(
+        uint256 tokenId,
+        string memory _tokenURI
+    ) external onlyOwner {
+        _tokenURIs[tokenId] = _tokenURI;
+        emit TokenURIUpdated(tokenId, _tokenURI);
+    }
+
+    /**
+     * @dev Establece metadatos para la colección
+     */
+    function setCollectionMetadata(
+        string memory _collectionMetadata
+    ) external onlyOwner {
+        collectionMetadata = _collectionMetadata;
+        emit CollectionMetadataUpdated(_collectionMetadata);
     }
 
     /**
@@ -118,8 +144,9 @@ contract MusicCollection is
         address to,
         uint256 tokenId,
         uint256 amount,
-        address paymentTokenAddress
-    ) external override nonReentrant {
+        address paymentTokenAddress,
+        string memory tokenMetadata
+    ) external nonReentrant {
         if (block.timestamp < mintStartDate) revert MintNotStarted();
         if (block.timestamp > mintEndDate) revert MintEnded();
         if (
@@ -137,6 +164,12 @@ contract MusicCollection is
             owner(),
             totalCost
         );
+
+        // Si es la primera vez que se acuña este token, establecer sus metadatos
+        if (totalSupply(tokenId) == 0 && bytes(tokenMetadata).length > 0) {
+            _tokenURIs[tokenId] = tokenMetadata;
+            emit TokenURIUpdated(tokenId, tokenMetadata);
+        }
 
         // Mint los tokens NFT
         _mint(to, tokenId, amount, "");
@@ -156,8 +189,9 @@ contract MusicCollection is
     function mint(
         address to,
         uint256 tokenId,
-        uint256 amount
-    ) external payable override nonReentrant {
+        uint256 amount,
+        string memory tokenMetadata
+    ) external payable nonReentrant {
         if (block.timestamp < mintStartDate) revert MintNotStarted();
         if (block.timestamp > mintEndDate) revert MintEnded();
         if (
@@ -175,6 +209,12 @@ contract MusicCollection is
             if (!success) revert TransferFailed();
         }
 
+        // Si es la primera vez que se acuña este token, establecer sus metadatos
+        if (totalSupply(tokenId) == 0 && bytes(tokenMetadata).length > 0) {
+            _tokenURIs[tokenId] = tokenMetadata;
+            emit TokenURIUpdated(tokenId, tokenMetadata);
+        }
+
         // Mint los tokens NFT
         _mint(to, tokenId, amount, "");
 
@@ -187,12 +227,19 @@ contract MusicCollection is
     function freeMint(
         address to,
         uint256 tokenId,
-        uint256 amount
-    ) external override onlyOwner {
+        uint256 amount,
+        string memory tokenMetadata
+    ) external onlyOwner {
         if (
             maxSupply[tokenId] != 0 &&
             totalSupply(tokenId) + amount > maxSupply[tokenId]
         ) revert ExceedsMaxSupply();
+
+        // Si es la primera vez que se acuña este token, establecer sus metadatos
+        if (totalSupply(tokenId) == 0 && bytes(tokenMetadata).length > 0) {
+            _tokenURIs[tokenId] = tokenMetadata;
+            emit TokenURIUpdated(tokenId, tokenMetadata);
+        }
 
         // Mint los tokens NFT
         _mint(to, tokenId, amount, "");
@@ -206,13 +253,21 @@ contract MusicCollection is
     function uri(
         uint256 tokenId
     ) public view override(ERC1155, IMusicCollection) returns (string memory) {
+        string memory tokenURI = _tokenURIs[tokenId];
+
+        // Si hay un URI específico para este token, devolverlo
+        if (bytes(tokenURI).length > 0) {
+            return tokenURI;
+        }
+
+        // De lo contrario, usar el enfoque tradicional baseURI + tokenId
         return string(abi.encodePacked(baseURI, tokenId.toString()));
     }
 
     /**
      * @dev Actualiza el URI base para todos los tokens
      */
-    function setBaseURI(string memory _newBaseURI) external override onlyOwner {
+    function setBaseURI(string memory _newBaseURI) external onlyOwner {
         baseURI = _newBaseURI;
         emit BaseURIUpdated(_newBaseURI);
     }

@@ -11,7 +11,7 @@ interface IMusicNFTFactory {
      */
     event CollectionCreated(
         address indexed artist,
-        address indexed collectionAddress,
+        address indexed collection,
         string name,
         string symbol
     );
@@ -20,15 +20,16 @@ interface IMusicNFTFactory {
      * @dev Crea una nueva colección ERC1155
      */
     function createCollection(
-        string memory _name,
-        string memory _symbol,
-        string memory _baseURI,
-        uint256 _mintStartDate,
-        uint256 _mintEndDate,
-        uint256 _price,
-        address _paymentToken,
-        address _royaltyReceiver,
-        uint96 _royaltyFee
+        string memory name,
+        string memory symbol,
+        string memory baseURI,
+        string memory collectionMetadata,
+        uint256 mintStartDate,
+        uint256 mintEndDate,
+        uint256 price,
+        address paymentToken,
+        address royaltyReceiver,
+        uint96 royaltyFee
     ) external returns (address);
 
     /**
