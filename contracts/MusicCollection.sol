@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./interfaces/IMusicCollection.sol";
+import "./interfaces/IRevenueShare.sol";
 
 /**
  * @title MusicCollection
@@ -47,6 +48,8 @@ contract MusicCollection is
     // Límites de mint
     mapping(uint256 => uint256) public maxSupply; // tokenId => max supply
 
+    address public revenueShare;
+
     constructor(
         string memory _name,
         string memory _symbol,
@@ -58,7 +61,8 @@ contract MusicCollection is
         address _paymentToken,
         address _royaltyReceiver,
         uint96 _royaltyFee,
-        address initialOwner
+        address initialOwner,
+        address _revenueShare
     ) ERC1155(_baseURI) Ownable(initialOwner) {
         name = _name;
         symbol = _symbol;
@@ -68,6 +72,7 @@ contract MusicCollection is
         mintEndDate = _mintEndDate;
         price = _price;
         paymentToken = _paymentToken;
+        revenueShare = _revenueShare;
 
         // Configurar royalties usando ERC2981
         _setDefaultRoyalty(_royaltyReceiver, _royaltyFee);
@@ -158,10 +163,11 @@ contract MusicCollection is
         uint256 tokenPrice = acceptedTokens[paymentTokenAddress];
         uint256 totalCost = tokenPrice * amount;
 
-        // Transferir tokens ERC20 directamente al propietario/artista
-        IERC20(paymentTokenAddress).transferFrom(
-            msg.sender,
-            owner(),
+        // Delegar completamente la transferencia y distribución al RevenueShare
+        IRevenueShare(revenueShare).distributeMintPaymentERC20(
+            address(this),
+            tokenId,
+            paymentTokenAddress,
             totalCost
         );
 
@@ -204,9 +210,11 @@ contract MusicCollection is
             totalCost = price * amount;
             if (msg.value < totalCost) revert InsufficientPayment();
 
-            // Enviar el pago directamente al propietario
-            (bool success, ) = payable(owner()).call{value: msg.value}("");
-            if (!success) revert TransferFailed();
+            // Distribuir pago a través del RevenueShare contract
+            IRevenueShare(revenueShare).distributeMintPayment{value: msg.value}(
+                address(this),
+                tokenId
+            );
         }
 
         // Si es la primera vez que se acuña este token, establecer sus metadatos

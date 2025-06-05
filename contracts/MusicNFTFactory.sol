@@ -23,42 +23,40 @@ contract MusicNFTFactory is IMusicNFTFactory, Ownable, ReentrancyGuard {
      * @dev Crea una nueva colección ERC1155
      */
     function createCollection(
-        string memory _name,
-        string memory _symbol,
-        string memory _baseURI,
-        string memory _collectionMetadata,
-        uint256 _mintStartDate,
-        uint256 _mintEndDate,
-        uint256 _price,
-        address _paymentToken,
-        address _royaltyReceiver,
-        uint96 _royaltyFee
+        string memory name,
+        string memory symbol,
+        string memory baseURI,
+        string memory collectionMetadata,
+        uint256 mintStartDate,
+        uint256 mintEndDate,
+        uint256 price,
+        address paymentToken,
+        address royaltyReceiver,
+        uint96 royaltyFee,
+        address artist,
+        address revenueShare
     ) external nonReentrant returns (address) {
         // Crear nueva colección
         MusicCollection newCollection = new MusicCollection(
-            _name,
-            _symbol,
-            _baseURI,
-            _collectionMetadata,
-            _mintStartDate,
-            _mintEndDate,
-            _price,
-            _paymentToken,
-            _royaltyReceiver,
-            _royaltyFee,
-            msg.sender // El artista es el propietario de la colección
+            name,
+            symbol,
+            baseURI,
+            collectionMetadata,
+            mintStartDate,
+            mintEndDate,
+            price,
+            paymentToken,
+            royaltyReceiver,
+            royaltyFee,
+            artist,
+            revenueShare
         );
 
         // Almacenar la colección en los arrays
         collections.push(newCollection);
-        artistCollections[msg.sender].push(newCollection);
+        artistCollections[artist].push(newCollection);
 
-        emit CollectionCreated(
-            msg.sender,
-            address(newCollection),
-            _name,
-            _symbol
-        );
+        emit CollectionCreated(artist, address(newCollection), name, symbol);
 
         return address(newCollection);
     }

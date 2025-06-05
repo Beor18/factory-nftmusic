@@ -10,6 +10,8 @@
     "coverage": "hardhat coverage",
     "deploy": "hardhat run scripts/deploy.js",
     "deploy:sepolia": "hardhat run scripts/deploy.js --network baseSepolia",
+    "deploy:revenue": "hardhat run scripts/deploy-revenue-share.js --network baseSepolia",
+    "deploy:all": "hardhat run scripts/deploy-all.js --network baseSepolia",
     "create-collection": "hardhat run scripts/create-collection.js",
     "node": "hardhat node",
     "clean": "hardhat clean",

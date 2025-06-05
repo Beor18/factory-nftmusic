@@ -29,7 +29,9 @@ interface IMusicNFTFactory {
         uint256 price,
         address paymentToken,
         address royaltyReceiver,
-        uint96 royaltyFee
+        uint96 royaltyFee,
+        address artist,
+        address revenueShare
     ) external returns (address);
 
     /**

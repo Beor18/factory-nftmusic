@@ -4,7 +4,7 @@
 const { ethers } = require("hardhat");
 
 /**
- * Despliega el contrato Factory
+ * Despliega el contrato MusicNFTFactory
  * @returns {Promise<Object>} - Contrato factory desplegado
  */
 async function deployFactory() {
@@ -19,6 +19,46 @@ async function deployFactory() {
   console.log(`MusicNFTFactory desplegado en: ${factoryAddress}`);
 
   return { factory, factoryAddress };
+}
+
+/**
+ * Despliega el contrato RevenueShareFactory
+ * @returns {Promise<Object>} - Contrato RevenueShareFactory desplegado
+ */
+async function deployRevenueShareFactory() {
+  console.log("Desplegando RevenueShareFactory...");
+
+  const RevenueShareFactory = await ethers.getContractFactory(
+    "RevenueShareFactory"
+  );
+  const factory = await RevenueShareFactory.deploy();
+
+  await factory.waitForDeployment();
+
+  const factoryAddress = await factory.getAddress();
+  console.log(`RevenueShareFactory desplegado en: ${factoryAddress}`);
+
+  return { factory, factoryAddress };
+}
+
+/**
+ * Despliega ambos factories
+ * @returns {Promise<Object>} - Ambos contratos desplegados
+ */
+async function deployAllFactories() {
+  console.log("Desplegando todos los factories...");
+
+  const musicFactory = await deployFactory();
+  const revenueFactory = await deployRevenueShareFactory();
+
+  console.log("\n=== RESUMEN DE DESPLIEGUE ===");
+  console.log(`MusicNFTFactory: ${musicFactory.factoryAddress}`);
+  console.log(`RevenueShareFactory: ${revenueFactory.factoryAddress}`);
+
+  return {
+    musicFactory,
+    revenueFactory,
+  };
 }
 
 /**
@@ -41,5 +81,7 @@ async function verifyContract(address, constructorArgs) {
 
 module.exports = {
   deployFactory,
+  deployRevenueShareFactory,
+  deployAllFactories,
   verifyContract,
 };
