@@ -4,18 +4,24 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title RevenueShare
  * @notice Manages revenue distribution for NFT collections with direct payment splits and resale royalties
  * @dev Implements direct payment distribution with inheritance tracking for remixes/playlists
  * @dev Supports both native tokens (ETH) and ERC20 tokens (USDC, DAI, etc.)
+ * @dev Includes manager role system allowing developers to configure splits while artists maintain ownership
  */
-contract RevenueShare is ReentrancyGuard {
+contract RevenueShare is ReentrancyGuard, AccessControl {
     using SafeERC20 for IERC20;
+
+    /// @dev Role identifier for managers who can configure splits
+    bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE");
 
     /// @dev Custom errors for gas efficiency
     error NotOwner();
+    error NotAuthorized();
     error NoShares();
     error InvalidAddress();
     error ZeroPercentage();
@@ -73,19 +79,31 @@ contract RevenueShare is ReentrancyGuard {
         uint256 amount
     );
 
+    event ManagerAdded(address indexed manager);
+    event ManagerRemoved(address indexed manager);
+
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
         _;
     }
 
+    modifier onlyOwnerOrManager() {
+        if (msg.sender != owner && !hasRole(MANAGER_ROLE, msg.sender)) {
+            revert NotAuthorized();
+        }
+        _;
+    }
+
     /**
      * @notice Creates a new RevenueShare contract
-     * @param _owner Address that will own this revenue share contract
+     * @param _owner Address that will own this revenue share contract (artist)
+     * @param _initialManager Address that will be granted manager role initially
      * @param _name Name of the revenue share arrangement
      * @param _description Description of the revenue share arrangement
      */
     constructor(
         address _owner,
+        address _initialManager,
         string memory _name,
         string memory _description
     ) {
@@ -95,6 +113,38 @@ contract RevenueShare is ReentrancyGuard {
         owner = _owner;
         name = _name;
         description = _description;
+
+        // Configure roles: artist is admin, initial manager is _initialManager
+        _grantRole(DEFAULT_ADMIN_ROLE, _owner); // Artist can manage roles
+        _grantRole(MANAGER_ROLE, _initialManager); // Initial manager is manager initially
+    }
+
+    /**
+     * @notice Adds a new manager (only owner can do this)
+     * @param manager Address to grant manager role
+     */
+    function addManager(address manager) external onlyOwner {
+        if (manager == address(0)) revert InvalidAddress();
+        _grantRole(MANAGER_ROLE, manager);
+        emit ManagerAdded(manager);
+    }
+
+    /**
+     * @notice Removes a manager (only owner can do this)
+     * @param manager Address to revoke manager role
+     */
+    function removeManager(address manager) external onlyOwner {
+        _revokeRole(MANAGER_ROLE, manager);
+        emit ManagerRemoved(manager);
+    }
+
+    /**
+     * @notice Checks if an address has manager role
+     * @param account Address to check
+     * @return True if the address is a manager
+     */
+    function isManager(address account) external view returns (bool) {
+        return hasRole(MANAGER_ROLE, account);
     }
 
     /**
@@ -107,7 +157,7 @@ contract RevenueShare is ReentrancyGuard {
         address collection,
         uint256 tokenId,
         Share[] memory shares
-    ) external onlyOwner {
+    ) external onlyOwnerOrManager {
         if (shares.length == 0) revert NoShares();
         if (collection == address(0)) revert InvalidAddress();
 
@@ -136,7 +186,7 @@ contract RevenueShare is ReentrancyGuard {
         address collection,
         uint256 tokenId,
         Share[] memory shares
-    ) external onlyOwner {
+    ) external onlyOwnerOrManager {
         if (shares.length == 0) revert NoShares();
         if (collection == address(0)) revert InvalidAddress();
 
@@ -163,7 +213,7 @@ contract RevenueShare is ReentrancyGuard {
     function setInheritance(
         uint256 tokenId,
         address[] memory sources
-    ) external onlyOwner {
+    ) external onlyOwnerOrManager {
         inheritedFrom[tokenId] = sources;
         emit InheritanceSet(tokenId, sources);
     }
@@ -176,7 +226,7 @@ contract RevenueShare is ReentrancyGuard {
     function setCollectionMintSplits(
         address collection,
         Share[] memory shares
-    ) external onlyOwner {
+    ) external onlyOwnerOrManager {
         if (shares.length == 0) revert NoShares();
         if (collection == address(0)) revert InvalidAddress();
 
@@ -203,7 +253,7 @@ contract RevenueShare is ReentrancyGuard {
     function setCollectionResaleRoyalties(
         address collection,
         Share[] memory shares
-    ) external onlyOwner {
+    ) external onlyOwnerOrManager {
         if (shares.length == 0) revert NoShares();
         if (collection == address(0)) revert InvalidAddress();
 
@@ -230,7 +280,7 @@ contract RevenueShare is ReentrancyGuard {
     function setCascadePercentage(
         uint256 tokenId,
         uint96 percentage
-    ) external onlyOwner {
+    ) external onlyOwnerOrManager {
         if (percentage > 10000) revert InvalidTotal(percentage);
         cascadePercentage[tokenId] = percentage;
     }

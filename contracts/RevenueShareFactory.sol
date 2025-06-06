@@ -64,7 +64,13 @@ contract RevenueShareFactory {
         if (bytes(description).length == 0) revert EmptyDescription();
 
         // Create new RevenueShare contract
-        RevenueShare manager = new RevenueShare(artist, name, description);
+        // Create new RevenueShare contract
+        RevenueShare manager = new RevenueShare(
+            artist,
+            msg.sender,
+            name,
+            description
+        );
         managerAddress = address(manager);
 
         // Verify contract creation

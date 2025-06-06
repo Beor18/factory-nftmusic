@@ -13,6 +13,13 @@ interface IRevenueShare {
 
     function description() external view returns (string memory);
 
+    // Manager role functions
+    function addManager(address manager) external;
+
+    function removeManager(address manager) external;
+
+    function isManager(address account) external view returns (bool);
+
     function setMintSplits(
         address collection,
         uint256 tokenId,
