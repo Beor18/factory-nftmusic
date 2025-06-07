@@ -163,13 +163,34 @@ contract MusicCollection is
         uint256 tokenPrice = acceptedTokens[paymentTokenAddress];
         uint256 totalCost = tokenPrice * amount;
 
-        // Delegar completamente la transferencia y distribución al RevenueShare
-        IRevenueShare(revenueShare).distributeMintPaymentERC20(
-            address(this),
-            tokenId,
-            paymentTokenAddress,
-            totalCost
-        );
+        if (totalCost > 0) {
+            if (revenueShare != address(0)) {
+                // Transferir tokens del usuario al contrato RevenueShare y distribuir
+                IERC20(paymentTokenAddress).transferFrom(
+                    msg.sender,
+                    address(this),
+                    totalCost
+                );
+
+                // Aprobar al RevenueShare para que pueda distribuir
+                IERC20(paymentTokenAddress).approve(revenueShare, totalCost);
+
+                // Delegar completamente la transferencia y distribución al RevenueShare
+                IRevenueShare(revenueShare).distributeMintPaymentERC20(
+                    address(this),
+                    tokenId,
+                    paymentTokenAddress,
+                    totalCost
+                );
+            } else {
+                // Si no hay RevenueShare, transferir directamente al owner
+                IERC20(paymentTokenAddress).transferFrom(
+                    msg.sender,
+                    owner(),
+                    totalCost
+                );
+            }
+        }
 
         // Si es la primera vez que se acuña este token, establecer sus metadatos
         if (totalSupply(tokenId) == 0 && bytes(tokenMetadata).length > 0) {
@@ -210,11 +231,16 @@ contract MusicCollection is
             totalCost = price * amount;
             if (msg.value < totalCost) revert InsufficientPayment();
 
-            // Distribuir pago a través del RevenueShare contract
-            IRevenueShare(revenueShare).distributeMintPayment{value: msg.value}(
-                address(this),
-                tokenId
-            );
+            if (revenueShare != address(0)) {
+                // Distribuir pago a través del RevenueShare contract
+                IRevenueShare(revenueShare).distributeMintPayment{
+                    value: msg.value
+                }(address(this), tokenId);
+            } else {
+                // Si no hay RevenueShare, enviar ETH directamente al owner
+                (bool success, ) = payable(owner()).call{value: msg.value}("");
+                require(success, "Transfer to owner failed");
+            }
         }
 
         // Si es la primera vez que se acuña este token, establecer sus metadatos
