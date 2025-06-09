@@ -26,7 +26,6 @@ interface IMusicNFTFactory {
         string memory collectionMetadata,
         uint256 mintStartDate,
         uint256 mintEndDate,
-        uint256 price,
         address paymentToken,
         address royaltyReceiver,
         uint96 royaltyFee,

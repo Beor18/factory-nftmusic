@@ -39,7 +39,6 @@ contract MusicCollection is
     // Configuración de ventas
     uint256 public mintStartDate;
     uint256 public mintEndDate;
-    uint256 public price;
     address public paymentToken; // Dirección del token ERC20 para pagos, address(0) para ETH nativo
 
     // Mapping de tokens ERC20 aceptados con sus precios respectivos
@@ -57,7 +56,6 @@ contract MusicCollection is
         string memory _collectionMetadata,
         uint256 _mintStartDate,
         uint256 _mintEndDate,
-        uint256 _price,
         address _paymentToken,
         address _royaltyReceiver,
         uint96 _royaltyFee,
@@ -70,7 +68,6 @@ contract MusicCollection is
         collectionMetadata = _collectionMetadata;
         mintStartDate = _mintStartDate;
         mintEndDate = _mintEndDate;
-        price = _price;
         paymentToken = _paymentToken;
         revenueShare = _revenueShare;
 
@@ -149,6 +146,7 @@ contract MusicCollection is
         address to,
         uint256 tokenId,
         uint256 amount,
+        uint256 pricePerToken,
         address paymentTokenAddress,
         string memory tokenMetadata
     ) external nonReentrant {
@@ -160,8 +158,7 @@ contract MusicCollection is
         ) revert ExceedsMaxSupply();
         if (acceptedTokens[paymentTokenAddress] == 0) revert UnsupportedToken();
 
-        uint256 tokenPrice = acceptedTokens[paymentTokenAddress];
-        uint256 totalCost = tokenPrice * amount;
+        uint256 totalCost = pricePerToken * amount;
 
         if (totalCost > 0) {
             if (revenueShare != address(0)) {
@@ -217,6 +214,7 @@ contract MusicCollection is
         address to,
         uint256 tokenId,
         uint256 amount,
+        uint256 pricePerToken,
         string memory tokenMetadata
     ) external payable nonReentrant {
         if (block.timestamp < mintStartDate) revert MintNotStarted();
@@ -226,9 +224,8 @@ contract MusicCollection is
             totalSupply(tokenId) + amount > maxSupply[tokenId]
         ) revert ExceedsMaxSupply();
 
-        uint256 totalCost = 0;
-        if (price > 0) {
-            totalCost = price * amount;
+        uint256 totalCost = pricePerToken * amount;
+        if (totalCost > 0) {
             if (msg.value < totalCost) revert InsufficientPayment();
 
             if (revenueShare != address(0)) {

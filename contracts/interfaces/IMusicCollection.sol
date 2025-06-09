@@ -73,6 +73,7 @@ interface IMusicCollection {
         address to,
         uint256 tokenId,
         uint256 amount,
+        uint256 pricePerToken,
         address paymentTokenAddress,
         string memory tokenMetadata
     ) external;
@@ -84,6 +85,7 @@ interface IMusicCollection {
         address to,
         uint256 tokenId,
         uint256 amount,
+        uint256 pricePerToken,
         string memory tokenMetadata
     ) external payable;
 
