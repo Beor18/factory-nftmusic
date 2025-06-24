@@ -1,72 +1,108 @@
-# Factory de NFTs ERC1155 para Artistas Musicales
+# Whitepaper - Tuneport
 
-Este proyecto implementa una plataforma completa de NFTs para artistas musicales utilizando el estándar ERC1155. Permite a los artistas crear colecciones de NFTs con soporte para royalties, distribución avanzada de ingresos, múltiples opciones de pago, y gestión de fechas de mint.
+## 🎵 Introduction
 
-## Características Principales
+Tuneport is a Web3 music platform where musicians upload their songs, can distribute revenue with or without collaborators, and sell to their fans, preserving their creative sovereignty. Tuneport eliminates intermediaries, improves revenue, and enables experiences like remixes, collectible fragments, and tokenized playlists.
 
-### Factory de NFTs ERC1155
+## 🧭 Motivation & Vision
 
-- Factory de ERC1155 para artistas musicales (`MusicNFTFactory`)
-- Soporte completo para royalties (ERC2981)
-- Mint con ETH nativo o tokens ERC20
-- Opción de free mint para propietarios
-- Fechas configurables de inicio y fin de mint
+Our goal is to establish the technical and philosophical foundation of the blockchain music ecosystem. We are defining the standard for how Web3 music platforms should balance innovation with usability, sovereignty with accessibility, and profitability with artistic integrity.
 
-### Sistema de Distribución de Ingresos
+Tuneport serves as both a functional platform and an open blueprint—demonstrating that music NFTs can be more than mere speculation, that streaming can coexist with ownership, and that complex revenue distribution can execute frictionlessly on the blockchain in a scalable manner.
 
-- **RevenueShare**: Contrato avanzado para distribución automática de ingresos
-- **RevenueShareFactory**: Factory para crear contratos de distribución personalizados
-- Splits configurables para mint y reventa
-- Soporte para herencia en remixes y playlists
-- Sistema de roles (propietario/manager) para gestión flexible
-- Distribución automática en ETH y tokens ERC20
+We are charting the path from Argentina to the world, proving that the future of music is not only decentralized—it is artist-centered, fan-focused, and built on scalable infrastructure.
 
-### Funcionalidades Avanzadas
+## ✨ Problem
 
-- Inheritance tracking para remixes y playlists
-- Cascade percentages para distribución jerárquica
-- Gestión de roles con AccessControl
-- Protección contra reentrancy
-- Verificación en BaseScan para transparencia
+- Artists earn pennies per thousands of plays.
+- They cannot monetize remixes or playlists.
+- Current Web3 platforms lack streaming, good UX, and scalability.
 
-## Estructura del Proyecto
+## 💡 Tuneport Solution
+
+- On-chain splits.
+- Interactive streaming: minting of fragments, remixes, playlists.
+- Frictionless onboarding (email or wallet thanks to Privy).
+- Uninterrupted streaming on mobile and web.
+- Modular architecture deployed on Base with gasless minting.
+- If Tuneport doesn't exist, the artist can continue using the smart contracts with complete freedom and without intermediaries.
+
+## 🚀 Smart Contract Features
+
+MusicNFTFactory.sol
+
+- Creation of music collections with mint start/end dates.
+- Minting with ETH or ERC20 tokens.
+- Optional: free mint for holders or fans.
+- Royalties.
+
+MusicCollection.sol
+
+- Custom ERC1155 implementation for audio.
+- Individual IPs per track or fragment.
+- Integration with RevenueShare for automatic payments.
+- RevenueShare & RevenueShareFactory
+- Configurable splits for primary and secondary revenue.
+- Support for inheritance in remixes and playlists.
+- Cascade tracking.
+- Roles for manager, artist, and collaborators.
+- Payments in ETH or ERC20.
+
+## 🔄 Operational Flow
+
+- The artist launches a collection.
+- Configures royalties, dates, and splits.
+- Users mint, remix, or create playlists.
+- RevenueShare distributes payments according to logic
+- If there are remixes or playlists, part of the revenue is inherited towards the original artist
+
+## ✨ Differentiators
+
+- Remixable NFTs.
+- Tokenized playlists.
+- Albums, collective drops, and singles as NFT collections
+- Streaming (without broken crypto UX).
+- Gasless integration with Privy (smart wallets without seed phrase).
+- Monetization from every interaction.
+
+## Project Structure
 
 ```
 .
-├── contracts/                    # Contratos inteligentes
-│   ├── interfaces/               # Interfaces y contratos abstractos
-│   │   ├── IMusicCollection.sol  # Interface para colecciones musicales
-│   │   ├── IMusicNFTFactory.sol  # Interface para el factory principal
-│   │   └── IRevenueShare.sol     # Interface para distribución de ingresos
-│   ├── MusicCollection.sol       # Implementación del NFT ERC1155
-│   ├── MusicNFTFactory.sol       # Factory para crear colecciones
-│   ├── RevenueShare.sol          # Sistema de distribución de ingresos
-│   └── RevenueShareFactory.sol   # Factory para crear distribuidores
+├── contracts/                    # Smart contracts
+│   ├── interfaces/               # Interfaces and abstract contracts
+│   │   ├── IMusicCollection.sol  # Interface for music collections
+│   │   ├── IMusicNFTFactory.sol  # Interface for main factory
+│   │   └── IRevenueShare.sol     # Interface for revenue distribution
+│   ├── MusicCollection.sol       # ERC1155 NFT implementation
+│   ├── MusicNFTFactory.sol       # Factory to create collections
+│   ├── RevenueShare.sol          # Revenue distribution system
+│   └── RevenueShareFactory.sol   # Factory to create distributors
 │
-├── scripts/                      # Scripts de despliegue y utilidades
-│   ├── utils/                    # Funciones auxiliares para scripts
-│   │   └── deploy-helpers.js     # Utilidades de despliegue
-│   ├── deploy.js                 # Script principal de despliegue
-│   ├── deploy-revenue-share.js   # Despliegue del sistema de ingresos
-│   ├── deploy-all.js             # Despliegue completo de toda la plataforma
-│   └── create-collection.js      # Crear colección de ejemplo
+├── scripts/                      # Deployment scripts and utilities
+│   ├── utils/                    # Helper functions for scripts
+│   │   └── deploy-helpers.js     # Deployment utilities
+│   ├── deploy.js                 # Main deployment script
+│   ├── deploy-revenue-share.js   # Revenue system deployment
+│   ├── deploy-all.js             # Complete platform deployment
+│   └── create-collection.js      # Create example collection
 │
-├── test/                         # Tests automatizados
-│   ├── utils/                    # Utilidades para testing
-│   └── MusicNFTFactory.test.js   # Tests para el factory principal
+├── test/                         # Automated tests
+│   ├── utils/                    # Testing utilities
+│   └── MusicNFTFactory.test.js   # Tests for main factory
 │
-├── .env                          # Variables de entorno (no incluir en git)
-├── hardhat.config.js             # Configuración de hardhat
-└── README.md                     # Documentación del proyecto
+├── .env                          # Environment variables (do not include in git)
+├── hardhat.config.js             # Hardhat configuration
+└── README.md                     # Project documentation
 ```
 
-## Instalación
+## Installation
 
 ```bash
 npm install
 ```
 
-## Compilación
+## Compilation
 
 ```bash
 npm run compile
@@ -78,88 +114,45 @@ npm run compile
 npm run test
 ```
 
-## Scripts Disponibles
+## Available Scripts
 
-### Desarrollo
+### Development
 
-- `npm run compile` - Compila los contratos
-- `npm run test` - Ejecuta los tests
-- `npm run coverage` - Genera reporte de cobertura
-- `npm run clean` - Limpia archivos generados
-- `npm run lint` - Formatea código Solidity
+- `npm run compile` - Compiles contracts
+- `npm run test` - Runs tests
+- `npm run coverage` - Generates coverage report
+- `npm run clean` - Cleans generated files
+- `npm run lint` - Formats Solidity code
 
-### Despliegue
+### Deployment
 
-- `npm run deploy` - Despliegue básico del factory
-- `npm run deploy:sepolia` - Despliega en Base Sepolia
-- `npm run deploy:revenue` - Despliega sistema de distribución de ingresos
-- `npm run deploy:all` - Despliega toda la plataforma completa
+- `npm run deploy` - Basic factory deployment
+- `npm run deploy:sepolia` - Deploys on Base Sepolia
+- `npm run deploy:revenue` - Deploys revenue distribution system
+- `npm run deploy:all` - Deploys complete platform
 
-### Utilidades
+## Network Configuration
 
-- `npm run create-collection` - Crea una colección de ejemplo
-- `npm run node` - Inicia nodo local de hardhat
-
-## Configuración de Red
-
-El proyecto está configurado para desplegar en:
+The project is configured to deploy on:
 
 - **Base Sepolia** (testnet): Chain ID 84532
-- **Hardhat Local Network**: Para desarrollo local
+- **Hardhat Local Network**: For local development
 
-## Variables de Entorno
+## Environment Variables
 
-Crea un archivo `.env` con:
-
-```bash
-PRIVATE_KEY=tu_clave_privada_aquí
-ETHERSCAN_API_KEY=tu_api_key_de_basescan
-```
-
-## Arquitectura de Contratos
-
-### MusicNFTFactory
-
-Factory principal que permite a los artistas crear sus propias colecciones ERC1155 con configuraciones personalizadas de pricing, fechas, y royalties.
-
-### MusicCollection
-
-Implementación ERC1155 con funcionalidades específicas para NFTs musicales, incluyendo:
-
-- Mint pagado y gratuito
-- Soporte para múltiples tokens de pago
-- Royalties automáticos
-- Control de fechas de mint
-
-### RevenueShare
-
-Sistema avanzado de distribución automática de ingresos que permite:
-
-- Configuración de splits para mint y reventa
-- Herencia de ingresos en remixes y playlists
-- Distribución automática en ETH y ERC20
-- Sistema de roles para gestión colaborativa
-
-### RevenueShareFactory
-
-Factory para crear contratos RevenueShare personalizados por artista, permitiendo múltiples configuraciones de distribución por artista.
-
-## Ejemplos de Uso
-
-### Crear una Colección NFT
+Create a `.env` file with:
 
 ```bash
-npm run create-collection
+PRIVATE_KEY=your_private_key_here
+ETHERSCAN_API_KEY=your_basescan_api_key
 ```
 
-### Configurar Distribución de Ingresos
+## Next steps...
 
-Los artistas pueden crear múltiples contratos de distribución para diferentes proyectos usando el RevenueShareFactory.
+- AUDIT
 
-## Seguridad
+## 🌎 Closing
 
-- Auditorías de OpenZeppelin para contratos base
-- Protección contra reentrancy
-- Validación exhaustiva de parámetros
-- Sistema de roles con AccessControl
-- Verificación en BaseScan para transparencia
+Tuneport is the music platform that combines sovereignty for artists, monetization, and experiences in a scalable architecture.
+
+From Corrientes, Argentina to the world: we are ready for every song to be worth what it deserves, for artists to be sovereign and have fair income.
