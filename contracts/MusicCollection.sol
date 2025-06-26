@@ -292,7 +292,7 @@ contract MusicCollection is
         }
 
         // De lo contrario, usar el enfoque tradicional baseURI + tokenId
-        return string(abi.encodePacked(baseURI, tokenId.toString()));
+        return string(abi.encodePacked(baseURI));
     }
 
     /**
