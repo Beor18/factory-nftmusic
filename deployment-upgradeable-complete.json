@@ -1,0 +1,15 @@
+{
+  "network": {
+    "name": "baseSepolia",
+    "chainId": "84532"
+  },
+  "timestamp": "2025-07-03T21:15:41.925Z",
+  "contracts": {
+    "musicFactoryProxy": "0xAD6474aB644B97A4B82C2128921c32aF69392B15",
+    "musicFactoryImplementation": "0xC8577Fd1d613e372FB0682eFf33b5Cfa20afeAf6",
+    "collectionImplementation": "0xF8BE24aA04Bb95C5038F8dc1dAE28c0BD191cC36",
+    "revenueFactoryProxy": "0x60CD9B009799636f59367E4C06b5Ad95Ce1E218F",
+    "revenueFactoryImplementation": "0x3cBA4cc0212450144A5C13778B11d8F210d634E2",
+    "revenueShareImplementation": "0x4151C8c01Eec4426179231AAfB37dCa81Ed19C14"
+  }
+}

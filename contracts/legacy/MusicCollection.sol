@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "./interfaces/IMusicCollection.sol";
-import "./interfaces/IRevenueShare.sol";
+import "../interfaces/IMusicCollection.sol";
+import "../interfaces/IRevenueShare.sol";
 
 /**
  * @title MusicCollection

@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "./MusicCollection.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "./interfaces/IMusicNFTFactory.sol";
+import "../interfaces/IMusicNFTFactory.sol";
 
 /**
  * @title MusicNFTFactory

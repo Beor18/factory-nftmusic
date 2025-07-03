@@ -12,13 +12,23 @@
     "deploy:sepolia": "hardhat run scripts/deploy.js --network baseSepolia",
     "deploy:revenue": "hardhat run scripts/deploy-revenue-share.js --network baseSepolia",
     "deploy:all": "hardhat run scripts/deploy-all.js --network baseSepolia",
+    "deploy:upgradeable": "hardhat run scripts/deploy-upgradeable.js",
+    "deploy:upgradeable:sepolia": "hardhat run scripts/deploy-upgradeable.js --network baseSepolia",
+    "deploy:all-upgradeable": "hardhat run scripts/deploy-all-upgradeable.js",
+    "deploy:all-upgradeable:sepolia": "hardhat run scripts/deploy-all-upgradeable.js --network baseSepolia",
+    "upgrade": "hardhat run scripts/upgrade-contracts.js",
+    "upgrade:sepolia": "hardhat run scripts/upgrade-contracts.js --network baseSepolia",
+    "upgrade:all": "hardhat run scripts/upgrade-all-contracts.js",
+    "upgrade:all:sepolia": "hardhat run scripts/upgrade-all-contracts.js --network baseSepolia",
     "create-collection": "hardhat run scripts/create-collection.js",
     "node": "hardhat node",
     "clean": "hardhat clean",
     "lint": "prettier --write 'contracts/**/*.sol'"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^5.0.0"
+    "@openzeppelin/contracts": "^5.0.0",
+    "@openzeppelin/contracts-upgradeable": "^5.0.0",
+    "@openzeppelin/hardhat-upgrades": "^2.4.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
